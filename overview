@@ -1,0 +1,121 @@
+# CollabBoard — Project Scaffold
+
+> **Sketch reference:** `/mnt/data/93514864-dac8-47c7-adfe-d4a5708da590.png`
+
+---
+
+## 1) Purpose
+
+A collaborative, multi-platform (Desktop + Mobile + Web) visual workspace combining an infinite whiteboard, task manager, sticky notes, grouped containers, important-work highlighting, and an expense tracker — all with real-time collaboration.
+
+## 2) Immediate goals (what we'll build first)
+
+1. Create a monorepo scaffold (web, desktop, mobile, packages/ui, packages/core).
+2. Implement backend skeleton (Auth, Boards CRUD, Yjs websocket server).
+3. Create a minimal working board: infinite canvas (react-konva), add/move objects, sync via y-websocket.
+4. Package desktop with Electron (loads web build).
+5. Create simple React Native viewer (Expo) to open boards.
+
+> MVP focus: real-time board with tasks, stickers, groups, presence, and persisting snapshots.
+
+## 3) Repo structure (monorepo)
+
+```
+/ (monorepo)
+├─ apps/
+│  ├─ web/               # React + TypeScript
+│  ├─ desktop/           # Electron wrapper
+│  └─ mobile/            # React Native (Expo)
+├─ packages/
+│  ├─ ui/                # shared components & design tokens
+│  └─ core/              # shared logic & types
+├─ services/
+│  ├─ api/               # Node.js + Fastify/Express
+│  └─ realtime/          # y-websocket server + auth middleware
+├─ infra/
+│  └─ docker/            # docker-compose, Dockerfiles
+└─ README.md
+```
+
+## 4) Tech stack (MVP choices)
+
+* Frontend: React + TypeScript
+* Canvas: react-konva
+* State/Realtime: Yjs + y-websocket
+* Backend: Node.js + TypeScript + Fastify
+* DB: Postgres + Prisma
+* Auth: Supabase Auth or JWT
+* Desktop: Electron
+* Mobile: React Native (Expo)
+* Storage: S3 (for media & thumbnails)
+
+## 5) Core data model (high-level)
+
+* **User**: id, name, email, avatar, settings
+* **Board**: id, title, owner, ydoc_snapshot, thumbnail
+* **Expenditure**: id, user_id, date, amount, category, notes
+* **Membership**: board/org access roles
+
+Realtime board (Yjs) structure:
+
+* root Map: `objects` => map(objectId -> objectMap)
+
+  * object fields: id, type(task|group|sticker|work|expenseMarker), x, y, w, h, props...
+* `order` => Y.Array (z-order)
+* `awareness` => presence data
+
+## 6) First deliverable options (pick one)
+
+* **A**: Full monorepo scaffold + minimal web app that shows the uploaded sketch image and a blank board.
+* **B**: Yjs + y-websocket server + tiny React app demonstrating add/move sync for one task.
+* **C**: Backend (Fastify) + Prisma models + auth endpoints (no realtime).
+* **D**: Electron wrapper that loads a simple web board (requires A or B first).
+
+## 7) Development checklist (MVP)
+
+* [ ] Monorepo with package manager (pnpm + Turborepo suggested)
+* [ ] Web app: login page (mock auth), board list, open board
+* [ ] Realtime service (y-websocket) running locally
+* [ ] Board page: react-konva canvas, add task, drag & drop
+* [ ] Sync: Yjs provider connecting board to y-websocket
+* [ ] Persist: save snapshot to `boards` table on demand
+* [ ] Desktop: electron build loading web app
+* [ ] Mobile: Expo app showing board viewer
+
+## 8) Run & Test (local dev quickstart)
+
+1. Install pnpm (or npm) and clone repository.
+2. Start realtime server: `node services/realtime/server.js`
+3. Start backend: `cd services/api && pnpm dev`
+4. Start web: `cd apps/web && pnpm dev`
+5. Open `http://localhost:3000` to view boards.
+
+> (Detailed commands will be provided after we scaffold.)
+
+## 9) UX notes from your sketch
+
+* Left vertical toolbar: Add Task, Add Work, Expenditure, Add Sticker, Add Group, Profile, Settings.
+* Big grid canvas occupying center/right — infinite/scrollable with snap-to-grid toggle.
+* Objects are freeform: tasks, groups (containers), stickers.
+* Expenditure accessible via calendar modal.
+
+## 10) Security & scaling (short)
+
+* Authenticate websocket connections with JWT tokens.
+* Use ACLs for board access (owner/editor/viewer).
+* Store heavy files off-ydoc (S3). Persist snapshots and compact ydocs regularly.
+
+## 11) Next actions (I will do if you pick one)
+
+* If you pick **A**: I will generate the monorepo scaffold (package.json workspaces, basic web app) and include the sketch image at the root README referencing `/mnt/data/93514864-dac8-47c7-adfe-d4a5708da590.png`.
+* If you pick **B**: I will code the y-websocket server + a React app that connects and demonstrates creating/moving a task with real-time sync.
+* If you pick **C**: I will generate Prisma schema and API endpoints for Users, Boards, and Expenditures.
+* If you pick **D**: I will produce an Electron config that wraps the web app and builds for your OS.
+
+---
+
+## Quick decision prompt
+
+Which first deliverable do you want me to build now? **A**, **B**, **C**, or **D**?
+
+(Reference image path: `/mnt/data/93514864-dac8-47c7-adfe-d4a5708da590.png`)
